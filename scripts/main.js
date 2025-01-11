@@ -33,6 +33,12 @@ let updateId = null;
 // Event Listeners
 // When addBox is clicked, show the popup
 addBox.addEventListener("click", () => {
+  isUpdate = false; // Reset update state
+  updateId = null; // Reset update ID
+  form[0].value = ""; // Clear title input
+  form[1].value = ""; // Clear description input
+  popupTitle.textContent = "Add a new note";
+  submitBtn.textContent = "Add Note";
   popupBoxContainer.classList.add("show");
   popupBox.classList.add("show");
   document.querySelector("body").style.overflow = "hidden";
@@ -47,13 +53,9 @@ closeBtn.addEventListener("click", () => {
 
 // Function to show the menu
 function showMenu(elem) {
-  // Add class "show" to the parent element of the menu
   elem.parentElement.classList.add("show");
-
-  // Add an event listener to the document to remove the "show" class when click outside of the menu
   document.addEventListener("click", (e) => {
     if (e.target.tagName != "I" || e.target != elem) {
-      // Remove the "show" class from the parent element of the menu
       elem.parentElement.classList.remove("show");
     }
   });
@@ -62,26 +64,20 @@ function showMenu(elem) {
 // Add an event listener to the wrapper to show the menu when click on the three dots
 wrapper.addEventListener("click", (e) => {
   if (e.target.classList.contains("bx-dots-horizontal-rounded")) {
-    // Call the function to show the menu
     showMenu(e.target);
   } else if (e.target.classList.contains("deleteIcon")) {
-    const res = confirm("Do you really want to DELETE this note ?");
+    const res = confirm("Do you really want to DELETE this note?");
     if (res) {
       const note = e.target.closest(".note");
-      const noteId = note.dataset.id;
-      notes = notes.filter((note) => {
-        note != noteId;
-      });
+      const noteId = parseInt(note.dataset.id);
+      notes = notes.filter((note) => note.id !== noteId);
       localStorage.setItem("notes", JSON.stringify(notes));
-
       renderNotes();
     }
   } else if (e.target.classList.contains("updateIcon")) {
     const note = e.target.closest(".note");
-
     const noteId = parseInt(note.dataset.id);
-
-    const foundedNote = notes.find((note) => note.id == noteId);
+    const foundedNote = notes.find((note) => note.id === noteId);
 
     form[0].value = foundedNote.titleInput;
     form[1].value = foundedNote.descriptionInput;
@@ -91,7 +87,6 @@ wrapper.addEventListener("click", (e) => {
 
     popupBoxContainer.classList.add("show");
     popupBox.classList.add("show");
-
     popupTitle.textContent = "Update Note";
     submitBtn.textContent = "Update";
   }
@@ -107,7 +102,6 @@ form.addEventListener("submit", (e) => {
   if (!titleInput && !descriptionInput) {
     alert("Please fill required sections!");
   } else {
-    // Create a new note object
     const date = new Date();
     let day = date.getDate();
     let year = date.getFullYear();
@@ -127,7 +121,6 @@ form.addEventListener("submit", (e) => {
       popupTitle.textContent = "Add a new note";
       submitBtn.textContent = "Add Note";
     } else {
-      // Add the note to the list
       notes.push({
         id,
         titleInput,
@@ -136,36 +129,28 @@ form.addEventListener("submit", (e) => {
       });
     }
 
-    // If the description is empty, add a default comment
     if (!descriptionInput) {
       descriptionInput = "No comment";
     }
 
     localStorage.setItem("notes", JSON.stringify(notes));
 
-    // Clear the form (Düzeltme burada)
-    form[0].value = ""; // Title alanını sıfırla
-    form[1].value = ""; // Description alanını sıfırla
+    form[0].value = ""; // Clear title input
+    form[1].value = ""; // Clear description input
 
-    // Close the popup
     popupBoxContainer.classList.remove("show");
     popupBox.classList.remove("show");
     document.querySelector("body").style.overflow = "auto";
 
-    // Render the notes
     renderNotes();
   }
 });
 
 // Function to render the notes
 function renderNotes() {
-  // If there are no notes, return
   if (!notes) return;
   else {
-    // Remove all notes from the list
     document.querySelectorAll(".note").forEach((li) => li.remove());
-
-    // Loop through the notes and add them to the list
     notes.forEach((note) => {
       let liTag = `<li class="note" data-id="${note.id}">
         <div class="details">
